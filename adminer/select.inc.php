@@ -176,15 +176,18 @@ if ($_POST && !$error) {
 				queries_redirect(remove_from_uri(), lang('%d item(s) have been affected.', $affected), $result);
 			}
 
-		} elseif (!is_string($file = get_file("csv_file", true))) {
+		} elseif (!is_string($file = get_file("csv_file", true)) && !$_POST["csv_plaintext"]) { //file upload failed and data not in plaintext
 			$error = upload_error($file);
-		} elseif (!preg_match('~~u', $file)) {
+		} elseif (!preg_match('~~u', $file) && !$_POST["csv_plaintext"]) { //file uploaded but not in utf8
 			$error = lang('File must be in UTF-8 encoding.');
+		} elseif (!is_string($file) && !$_POST["csv_plaintext"]) { //$file contains int on error, string otherwise
+    		$error = lang('Either file or data in plaintext must be provided.');
 		} else {
 			cookie("adminer_import", "output=" . urlencode($adminer_import["output"]) . "&format=" . urlencode($_POST["separator"]));
 			$result = true;
 			$cols = array_keys($fields);
-			preg_match_all('~(?>"[^"]*"|[^"\\r\\n]+)+~', $file, $matches);
+			$data = is_string($file) ? $file : $_POST["csv_plaintext"]; //is file received? use it, otherwise use data from textarea plaintext
+			preg_match_all('~(?>"[^"]*"|[^"\\r\\n]+)+~', $data, $matches);
 			$affected = count($matches[0]);
 			$driver->begin();
 			$separator = ($_POST["separator"] == "csv" ? "," : ($_POST["separator"] == "tsv" ? "\t" : ";"));
@@ -524,6 +527,9 @@ if (!$columns && support("table")) {
 			echo "<input type='file' name='csv_file'> ";
 			echo html_select("separator", array("csv" => "CSV,", "csv;" => "CSV;", "tsv" => "TSV"), $adminer_import["format"], 1); // 1 - select
 			echo " <input type='submit' name='import' value='" . lang('Import') . "'>";
+			echo " <br />";
+			echo " " . lang('Either choose file or use plain text input') . ":<br />";
+			echo " <textarea name='csv_plaintext' rows='5' cols='50' spellcheck='false' wrap='off'></textarea>";
 			echo "</div></fieldset>\n";
 		}
 
