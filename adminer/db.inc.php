@@ -65,15 +65,16 @@ if ($adminer->homepage()) {
 			echo "<table cellspacing='0' class='nowrap checkable' onclick='tableClick(event);' ondblclick='tableClick(event, true);'>\n";
 
 			echo '<thead><tr class="wrap"><td><input id="check-all" type="checkbox" onclick="formCheck(this, /^(tables|views)\[/);">';
+			$doc_link = doc_link(array('sql' => 'show-table-status.html'));
 			echo '<th>' . lang('Table');
-			echo '<td>' . lang('Engine');
-			echo '<td>' . lang('Collation');
-			echo '<td>' . lang('Data Length');
-			echo '<td>' . lang('Index Length');
-			echo '<td>' . lang('Data Free');
-			echo '<td>' . lang('Auto Increment');
-			echo '<td>' . lang('Rows');
-			echo (support("comment") ? '<td>' . lang('Comment') : '');
+			echo '<td>' . lang('Engine') . doc_link(array('sql' => 'storage-engines.html'));
+			echo '<td>' . lang('Collation') . doc_link(array('sql' => 'charset-mysql.html'));
+			echo '<td>' . lang('Data Length') . $doc_link;
+			echo '<td>' . lang('Index Length') . $doc_link;
+			echo '<td>' . lang('Data Free') . $doc_link;
+			echo '<td>' . lang('Auto Increment') . doc_link(array('sql' => 'example-auto-increment.html'));
+			echo '<td>' . lang('Rows') . $doc_link;
+			echo (support("comment") ? '<td>' . lang('Comment') . $doc_link : '');
 			echo "</thead>\n";
 
 			$tables = 0;
@@ -170,7 +171,7 @@ if ($adminer->homepage()) {
 
 		if (support("sequence")) {
 			echo "<h3 id='sequences'>" . lang('Sequences') . "</h3>\n";
-			$sequences = get_vals("SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = current_schema()");
+			$sequences = get_vals("SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = current_schema() ORDER BY sequence_name");
 			if ($sequences) {
 				echo "<table cellspacing='0'>\n";
 				echo "<thead><tr><th>" . lang('Name') . "</thead>\n";

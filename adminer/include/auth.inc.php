@@ -114,8 +114,13 @@ function unset_permanent() {
 	cookie("adminer_permanent", implode(" ", $permanent));
 }
 
+/** Renders an error message and a login form
+* @param string plain text
+* @return null exits
+*/
 function auth_error($error) {
 	global $adminer, $has_token;
+	$error = h($error);
 	$session_name = session_name();
 	if (isset($_GET["username"])) {
 		header("HTTP/1.1 403 Forbidden"); // 401 requires sending WWW-Authenticate header
@@ -186,7 +191,7 @@ if ($_POST) {
 		}
 		$error = (!$_POST["token"] && $max_vars
 			? lang('Maximum number of allowed fields exceeded. Please increase %s.', "'$ini'")
-			: lang('Invalid CSRF token. Send the form again.')
+			: lang('Invalid CSRF token. Send the form again.') . ' ' . lang('If you did not send this request from Adminer then close this page.')
 		);
 	}
 	
